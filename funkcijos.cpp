@@ -12,6 +12,7 @@ map<string, int> pirma(ifstream& file) {
             // pasalinami skyrybos zenklai ir skaiciai
             zodis.erase(remove_if(zodis.begin(), zodis.end(), ::ispunct), zodis.end());
             zodis.erase(remove_if(zodis.begin(), zodis.end(), ::isdigit), zodis.end());
+            transform(zodis.begin(), zodis.end(), zodis.begin(), ::tolower); // visos raides mazosios
             if (!zodis.empty()) {
                 counter[zodis]++;
             }
@@ -20,10 +21,10 @@ map<string, int> pirma(ifstream& file) {
     return counter;
 }
 
-pair<map<string, set<int>>, int> antra(ifstream& file) {
+map<string, set<int>> antra(ifstream& file) {
     // associative container
     map<string, set<int>> eilutes;
-    int lineNumber = 1;
+    int lineNr = 1;
     string line;
     while (getline(file, line)) {
         istringstream iss(line);
@@ -32,28 +33,31 @@ pair<map<string, set<int>>, int> antra(ifstream& file) {
             // pasalinami skyrybos zenklai ir skaiciai
             zodis.erase(remove_if(zodis.begin(), zodis.end(), ::ispunct), zodis.end());
             zodis.erase(remove_if(zodis.begin(), zodis.end(), ::isdigit), zodis.end());
+            transform(zodis.begin(), zodis.end(), zodis.begin(), ::tolower); // visos mazosios raides
             if (!zodis.empty()) {
-                eilutes[zodis].insert(lineNumber);
+                eilutes[zodis].insert(lineNr);
             }
         }
-        lineNumber++;
+        lineNr++;
     }
-    return make_pair(eilutes, lineNumber);
+    return eilutes;
 }
 
 unordered_set<string> trecia(ifstream& file) {
     stringstream buffer;
     buffer << file.rdbuf();
-    string tekstas = buffer.str();
+    string tekstas = buffer.str(); //visas tekstas string
 
     // associative container
     unordered_set<string> urls;
 
-    regex url_regex(
+    // regular expression
+    regex urlRegex(
         R"((https?|www)[^\s]+)",
         regex::icase
     );
-    for(auto i = sregex_iterator(tekstas.begin(), tekstas.end(), url_regex); i != sregex_iterator(); ++i) {
+    // tekste iesko regex ir prideda i urls
+    for(auto i = sregex_iterator(tekstas.begin(), tekstas.end(), urlRegex); i != sregex_iterator(); ++i) {
         urls.insert(i->str());
     }
     return urls;
@@ -66,8 +70,7 @@ void out1(map<string, int> counter) {
     }
     outFile.close();
 }
-
-void out2(map<string, set<int>> eilutes, int lineNumber) {
+void out2(map<string, set<int>> eilutes) {
     ofstream outFile("zodziu_eilutes.txt");
     for (const auto& pair : eilutes) {
         outFile << pair.first << " ";
@@ -78,7 +81,6 @@ void out2(map<string, set<int>> eilutes, int lineNumber) {
     }
     outFile.close();
 }
-
 void out3(unordered_set<string> urls) {
     ofstream outFile("urls.txt");
     for (const string& url : urls) {

@@ -11,13 +11,11 @@
 #include <unordered_set>
 #include <locale>
 #include <codecvt>
-
-
-
 using namespace std;
+
 map<string, int> pirma(ifstream&);
-pair<map<string, set<int>>, int> antra(ifstream&);
+map<string, set<int>> antra(ifstream&);
 unordered_set<string> trecia(ifstream&);
 void out1(map<string, int>);
-void out2(map<string, set<int>>, int);
+void out2(map<string, set<int>>);
 void out3(unordered_set<string>);

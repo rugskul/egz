@@ -16,7 +16,7 @@ void pirma() {
         istringstream iss(line);
         string zodis;
         while (iss >> zodis) {
-            // pasalinami skyrybos zenklai
+            // pasalinami skyrybos zenklai ir skaiciai
             zodis.erase(remove_if(zodis.begin(), zodis.end(), ::ispunct), zodis.end());
             zodis.erase(remove_if(zodis.begin(), zodis.end(), ::isdigit), zodis.end());
             if (!zodis.empty()) {
@@ -48,10 +48,12 @@ void antra() {
             istringstream iss(line);
             string zodis;
             while (iss >> zodis) {
-                // pasalinami skyrybos zenklai
+                // pasalinami skyrybos zenklai ir skaiciai
                 zodis.erase(remove_if(zodis.begin(), zodis.end(), ::ispunct), zodis.end());
                 zodis.erase(remove_if(zodis.begin(), zodis.end(), ::isdigit), zodis.end());
-                crossReferenceTable[zodis].insert(lineNumber);
+                if (!zodis.empty()) {
+                    crossReferenceTable[zodis].insert(lineNumber);
+                }
             }
             lineNumber++;
         }
@@ -60,34 +62,28 @@ void antra() {
         cerr << "Nepavyko atidaryti failo." << endl;
     }
 
-    cout << left << setw(30) << "";
-    for (int i = 1; i <= lineNumber-1; i++) {
-        cout << setw(5) << i;
-    }
-    cout << endl;
-    for (const auto& pair : crossReferenceTable) {
-        cout << left << setw(30) << pair.first;
-        for (int i = 1; i <= lineNumber-1; i++) {
-            if (pair.second.find(i) != pair.second.end()) {
-                cout << setw(5) << "x";
-            } else {
-                cout << setw(5) << " ";
-            }
-        }
-        cout << endl;
-    }
-
-    ofstream outFile("zodziu_counteris.txt");
+    ofstream outFile("zodziu_eilutese.txt");
     if (!outFile.is_open()) {
         cerr << "Nepavyko atidaryti failo." << endl;
     }
-    for (const auto& pair : crossReferenceTable) {
-        outFile << pair.first << ": ";
-        for (const auto& line : pair.second) {
-            outFile << line << " ";
-        }
-        outFile << "\n";
+
+    outFile << left << setw(30) << "";
+    for (int i = 1; i <= lineNumber-1; i++) {
+        outFile << setw(5) << i;
     }
+    outFile << endl;
+    for (const auto& pair : crossReferenceTable) {
+        outFile << left << setw(30) << pair.first; 
+        for (int i = 1; i <= lineNumber-1; i++) {
+            if (pair.second.find(i) != pair.second.end()) {
+                outFile << setw(5) << "x";
+            } else {
+                outFile << setw(5) << " ";
+            }
+        }
+        outFile << endl;
+    }
+
     outFile.close();
 }
 
@@ -112,7 +108,13 @@ void trecia() {
         urls.insert(i->str());
     }
 
-    for (const string& url : urls) {
-        cout << url << endl;
+    ofstream outFile("urls.txt");
+    if (!outFile.is_open()) {
+        cerr << "Nepavyko atidaryti failo." << endl;
     }
+    for (const string& url : urls) {
+        cout << url << endl; //ekrane
+        outFile << url << endl; //i faila
+    }
+    outFile.close();
 }

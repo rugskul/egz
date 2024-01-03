@@ -1,18 +1,11 @@
 #include "funkcijos.h"
 
-void pirma() {
-    ifstream inFile("tekstas.txt");
-    if (!inFile.is_open()) {
-        cerr << "Nepavyko atidaryti failo." << endl;
-    }
+map<string, int> pirma(ifstream& file) {
     // associative container
     map<string, int> counter;
 
     string line;
-    while (getline(inFile, line)) {
-        for (int i = 0; i < line.size(); i += 66) {
-            string substring = line.substr(i, 66);
-        }
+    while (getline(file, line)) {
         istringstream iss(line);
         string zodis;
         while (iss >> zodis) {
@@ -24,94 +17,70 @@ void pirma() {
             }
         }
     }
-    inFile.close();
-
-
-    ofstream outFile("zodziu_counteris.txt");
-    if (!outFile.is_open()) {
-        cerr << "Nepavyko atidaryti failo." << endl;
-    }
-    for (const auto& pair : counter) {
-        outFile << pair.first << ": " << pair.second << "\n";
-    }
-    outFile.close();
+    return counter;
 }
 
-void antra() {
+pair<map<string, set<int>>, int> antra(ifstream& file) {
     // associative container
-    map<string, set<int>> crossReferenceTable;
+    map<string, set<int>> eilutes;
     int lineNumber = 1;
-    ifstream file("tekstas.txt");
-    if (file.is_open()) {
-        string line;
-        while (getline(file, line)) {
-            istringstream iss(line);
-            string zodis;
-            while (iss >> zodis) {
-                // pasalinami skyrybos zenklai ir skaiciai
-                zodis.erase(remove_if(zodis.begin(), zodis.end(), ::ispunct), zodis.end());
-                zodis.erase(remove_if(zodis.begin(), zodis.end(), ::isdigit), zodis.end());
-                if (!zodis.empty()) {
-                    crossReferenceTable[zodis].insert(lineNumber);
-                }
-            }
-            lineNumber++;
-        }
-        file.close();
-    } else {
-        cerr << "Nepavyko atidaryti failo." << endl;
-    }
-
-    ofstream outFile("zodziu_eilutese.txt");
-    if (!outFile.is_open()) {
-        cerr << "Nepavyko atidaryti failo." << endl;
-    }
-
-    outFile << left << setw(30) << "";
-    for (int i = 1; i <= lineNumber-1; i++) {
-        outFile << setw(5) << i;
-    }
-    outFile << endl;
-    for (const auto& pair : crossReferenceTable) {
-        outFile << left << setw(30) << pair.first; 
-        for (int i = 1; i <= lineNumber-1; i++) {
-            if (pair.second.find(i) != pair.second.end()) {
-                outFile << setw(5) << "x";
-            } else {
-                outFile << setw(5) << " ";
+    string line;
+    while (getline(file, line)) {
+        istringstream iss(line);
+        string zodis;
+        while (iss >> zodis) {
+            // pasalinami skyrybos zenklai ir skaiciai
+            zodis.erase(remove_if(zodis.begin(), zodis.end(), ::ispunct), zodis.end());
+            zodis.erase(remove_if(zodis.begin(), zodis.end(), ::isdigit), zodis.end());
+            if (!zodis.empty()) {
+                eilutes[zodis].insert(lineNumber);
             }
         }
-        outFile << endl;
+        lineNumber++;
     }
-
-    outFile.close();
+    return make_pair(eilutes, lineNumber);
 }
 
-void trecia() {
-    ifstream file("tekstas.txt");
-    if (!file.is_open()) {
-        cerr << "Nepavyko atidaryti failo." << endl;
-    }
+unordered_set<string> trecia(ifstream& file) {
     stringstream buffer;
     buffer << file.rdbuf();
     string tekstas = buffer.str();
 
+    // associative container
+    unordered_set<string> urls;
 
     regex url_regex(
         R"((https?|www)[^\s]+)",
         regex::icase
     );
-
-    unordered_set<string> urls;
-
     for(auto i = sregex_iterator(tekstas.begin(), tekstas.end(), url_regex); i != sregex_iterator(); ++i) {
         urls.insert(i->str());
     }
+    return urls;
+}
 
-    ofstream outFile("urls.txt");
-    if (!outFile.is_open()) {
-        cerr << "Nepavyko atidaryti failo." << endl;
+void out1(map<string, int> counter) {
+    ofstream outFile("zodziu_counteris.txt");
+    for (const auto& pair : counter) {
+        outFile << pair.first << " " << pair.second << endl;
     }
+    outFile.close();
+}
+
+void out2(map<string, set<int>> eilutes, int lineNumber) {
+    ofstream outFile("zodziu_eilutes.txt");
+    for (const auto& pair : eilutes) {
+        outFile << pair.first << " ";
+        for (const int& line : pair.second) {
+            outFile << line << " ";
+        }
+        outFile << endl;
+    }
+    outFile.close();
+}
+
+void out3(unordered_set<string> urls) {
+    ofstream outFile("urls.txt");
     for (const string& url : urls) {
         cout << url << endl; //ekrane
         outFile << url << endl; //i faila

@@ -15,7 +15,9 @@
 
 
 using namespace std;
-void pirma();
-void antra();
-void trecia();
-void zodziu_eilutes_ekrane(const map<string, set<int>>& zodziu_vieta);
+map<string, int> pirma(ifstream&);
+pair<map<string, set<int>>, int> antra(ifstream&);
+unordered_set<string> trecia(ifstream&);
+void out1(map<string, int>);
+void out2(map<string, set<int>>, int);
+void out3(unordered_set<string>);
